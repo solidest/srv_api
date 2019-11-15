@@ -1,1 +1,0 @@
-cmd_Release/srv_api-native.node := ln -f "Release/obj.target/srv_api-native.node" "Release/srv_api-native.node" 2>/dev/null || (rm -rf "Release/srv_api-native.node" && cp -af "Release/obj.target/srv_api-native.node" "Release/srv_api-native.node")

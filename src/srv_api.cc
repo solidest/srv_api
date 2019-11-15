@@ -1,4 +1,6 @@
+
 #include "srv_api.h"
+
 
 using namespace Napi;
 
@@ -18,6 +20,20 @@ SrvApi::SrvApi(const Napi::CallbackInfo& info) : ObjectWrap(info) {
     }
 
     this->_greeterName = info[0].As<Napi::String>().Utf8Value();
+
+    _st_srv = redisConnect("127.0.0.1", 6379);
+    if (_st_srv == NULL || _st_srv->err) {
+
+        char buff[800];
+        if (_st_srv) {
+            sprintf(buff, "Connection error: %s\n", _st_srv->errstr);
+            redisFree(_st_srv);
+        } else {
+            sprintf(buff, "Connection error: can't allocate redis context\n");
+        }
+        Napi::TypeError::New(env, buff)
+          .ThrowAsJavaScriptException();
+    }
 }
 
 Napi::Value SrvApi::Greet(const Napi::CallbackInfo& info) {

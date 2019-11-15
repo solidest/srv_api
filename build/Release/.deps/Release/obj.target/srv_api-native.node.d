@@ -1,1 +1,0 @@
-cmd_Release/obj.target/srv_api-native.node := g++ -o Release/obj.target/srv_api-native.node -shared -pthread -rdynamic -m32  -Wl,-soname=srv_api-native.node -Wl,--start-group Release/obj.target/srv_api-native/src/srv_api.o Release/obj.target/node_modules/node-addon-api/src/nothing.a -Wl,--end-group -lnode

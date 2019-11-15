@@ -1,6 +1,7 @@
 #pragma once
 
 #include <napi.h>
+#include "hiredis/hiredis.h"
 
 class SrvApi : public Napi::ObjectWrap<SrvApi>
 {
@@ -12,4 +13,5 @@ public:
 
 private:
     std::string _greeterName;
+    redisContext* _st_srv;
 };
