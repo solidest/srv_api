@@ -1,0 +1,26 @@
+{
+  "main": "lib/binding.js",
+  "dependencies": {
+    "node-addon-api": "^1.1.0"
+  },
+  "scripts": {
+    "test": "node --napi-modules ./test/test_binding.js"
+  },
+  "gypfile": true,
+  "name": "srv_api",
+  "description": "stbox server api",
+  "version": "1.0.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/solidest/srv_api.git"
+  },
+  "keywords": [
+    "srv_api"
+  ],
+  "author": "solidest",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/solidest/srv_api/issues"
+  },
+  "homepage": "https://github.com/solidest/srv_api#readme"
+}
