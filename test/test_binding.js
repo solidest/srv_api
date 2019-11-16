@@ -7,7 +7,6 @@ function testBasic()
 {
     let srv = new SrvApi("127.0.0.1", 1210);
     let s = srv.state();
-    console.log(s);
     assert.ok(s.work_type=="idle");
 
     srv.prepare(1, " ", " ");
