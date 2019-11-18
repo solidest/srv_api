@@ -21,6 +21,7 @@ public:
     Napi::Value PauseCase(const Napi::CallbackInfo&);
     Napi::Value ContinueCase(const Napi::CallbackInfo&);
     Napi::Value Clear(const Napi::CallbackInfo&);
+    Napi::Value Exit(const Napi::CallbackInfo&);
 
     static Napi::Function GetClass(Napi::Env);
 

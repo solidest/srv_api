@@ -363,6 +363,22 @@ Napi::Value SrvApi::Clear(const Napi::CallbackInfo& info) {
     return env.Null();
 }
 
+Napi::Value SrvApi::Exit(const Napi::CallbackInfo& info) {
+    Napi::Env env = info.Env();
+
+    auto reply = (redisReply*)redisCommand(_st_srv, "exit");
+    if(reply ==nullptr) {
+        return env.Null();
+    }
+    if(reply->type == REDIS_REPLY_ERROR) {
+        Napi::TypeError::New(env, reply->str).ThrowAsJavaScriptException();
+        freeReplyObject(reply);
+        return env.Null();
+    }
+
+    freeReplyObject(reply);
+    return env.Null();
+}
 
 
 Napi::Function SrvApi::GetClass(Napi::Env env) {
@@ -375,7 +391,8 @@ Napi::Function SrvApi::GetClass(Napi::Env env) {
         SrvApi::InstanceMethod("stop", &SrvApi::StopCase),
         SrvApi::InstanceMethod("pause", &SrvApi::PauseCase),
         SrvApi::InstanceMethod("continue", &SrvApi::ContinueCase),
-        SrvApi::InstanceMethod("clear", &SrvApi::Clear)
+        SrvApi::InstanceMethod("clear", &SrvApi::Clear),
+        SrvApi::InstanceMethod("exit", &SrvApi::Exit)
     });
 }
 

@@ -32,6 +32,8 @@ function testBasic()
     srv.clear(1);
     s = srv.state();
     assert.ok(s.work_type=="idle");
+
+    srv.exit();
 }
 
 function testInvalidParams()
@@ -39,8 +41,8 @@ function testInvalidParams()
     const srv = new SrvApi();
 }
 
-testBasic();
-//assert.doesNotThrow(testBasic, undefined, "testBasic threw an expection");
+//testBasic();
+assert.doesNotThrow(testBasic, undefined, "testBasic threw an expection");
 assert.throws(testInvalidParams, undefined, "testInvalidParams didn't throw");
 
 console.log("Tests passed- everything looks OK!");
