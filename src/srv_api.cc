@@ -145,13 +145,14 @@ Napi::Value SrvApi::Prepare(const Napi::CallbackInfo& info) {
         return env.Null();
     }
 
-    if(reply->type ==REDIS_REPLY_ERROR) {
+    if(reply->type==REDIS_REPLY_ERROR) {
         Napi::TypeError::New(env, reply->str).ThrowAsJavaScriptException();
         freeReplyObject(reply);
         return env.Null();
     }
 
-    if(reply->type!=REDIS_REPLY_STATUS || strcmp(reply->str, "ok")!=0) {
+    if(reply->type!=REDIS_REPLY_STATUS || strcmp(reply->str, "OK")!=0) {
+        printf("%s\n", reply->str);
         Napi::TypeError::New(env, "error prepare()").ThrowAsJavaScriptException();
         freeReplyObject(reply);
         return env.Null();
@@ -193,7 +194,7 @@ Napi::Value SrvApi::StartCase(const Napi::CallbackInfo& info) {
         freeReplyObject(reply);
         return env.Null();
     }
-    if(reply->type!=REDIS_REPLY_STATUS || strcmp(reply->str, "ok")!=0) {
+    if(reply->type!=REDIS_REPLY_STATUS || strcmp(reply->str, "OK")!=0) {
         Napi::TypeError::New(env, "error start()").ThrowAsJavaScriptException();
         freeReplyObject(reply);
         return env.Null();
@@ -235,7 +236,7 @@ Napi::Value SrvApi::StopCase(const Napi::CallbackInfo& info) {
         freeReplyObject(reply);
         return env.Null();
     }
-    if(reply->type!=REDIS_REPLY_STATUS || strcmp(reply->str, "ok")!=0) {
+    if(reply->type!=REDIS_REPLY_STATUS || strcmp(reply->str, "OK")!=0) {
         Napi::TypeError::New(env, "error stop()").ThrowAsJavaScriptException();
         freeReplyObject(reply);
         return env.Null();
@@ -245,88 +246,88 @@ Napi::Value SrvApi::StopCase(const Napi::CallbackInfo& info) {
     return env.Null();
 }
 
-//pause run case
-Napi::Value SrvApi::PauseCase(const Napi::CallbackInfo& info) {
-    Napi::Env env = info.Env();
+// //pause run case
+// Napi::Value SrvApi::PauseCase(const Napi::CallbackInfo& info) {
+//     Napi::Env env = info.Env();
 
-    if (info.Length() != 2) {
-        Napi::TypeError::New(env, "Wrong number of arguments").ThrowAsJavaScriptException();
-        return env.Null();
-    }
+//     if (info.Length() != 2) {
+//         Napi::TypeError::New(env, "Wrong number of arguments").ThrowAsJavaScriptException();
+//         return env.Null();
+//     }
 
-    if (!info[0].IsNumber() || !info[1].IsString()) {
-        Napi::TypeError::New(env, "Need proj_id, and case file").ThrowAsJavaScriptException();
-        return env.Null();
-    }
+//     if (!info[0].IsNumber() || !info[1].IsString()) {
+//         Napi::TypeError::New(env, "Need proj_id, and case file").ThrowAsJavaScriptException();
+//         return env.Null();
+//     }
 
-    char cmd[] = "pause";
-    char proj_id[16];
-    sprintf(proj_id, "%i", info[0].As<Napi::Number>().Int32Value());
-    const char* casefile = info[1].As<Napi::String>().Utf8Value().c_str();
+//     char cmd[] = "pause";
+//     char proj_id[16];
+//     sprintf(proj_id, "%i", info[0].As<Napi::Number>().Int32Value());
+//     const char* casefile = info[1].As<Napi::String>().Utf8Value().c_str();
 
-    const char* argv[] = {cmd, proj_id, casefile};
-    size_t arglen[] = {strlen(cmd), strlen(proj_id), strlen(casefile)};
+//     const char* argv[] = {cmd, proj_id, casefile};
+//     size_t arglen[] = {strlen(cmd), strlen(proj_id), strlen(casefile)};
 
-    auto reply = (redisReply*)redisCommandArgv(_st_srv, 3, argv, arglen);
-    if(reply ==nullptr) {
-        Napi::TypeError::New(env, _st_srv->errstr).ThrowAsJavaScriptException();
-        return env.Null();
-    }
-    if(reply->type ==REDIS_REPLY_ERROR) {
-        Napi::TypeError::New(env, reply->str).ThrowAsJavaScriptException();
-        freeReplyObject(reply);
-        return env.Null();
-    }
-    if(reply->type!=REDIS_REPLY_STATUS || strcmp(reply->str, "ok")!=0) {
-        Napi::TypeError::New(env, "error pause()").ThrowAsJavaScriptException();
-        freeReplyObject(reply);
-        return env.Null();
-    }
+//     auto reply = (redisReply*)redisCommandArgv(_st_srv, 3, argv, arglen);
+//     if(reply ==nullptr) {
+//         Napi::TypeError::New(env, _st_srv->errstr).ThrowAsJavaScriptException();
+//         return env.Null();
+//     }
+//     if(reply->type ==REDIS_REPLY_ERROR) {
+//         Napi::TypeError::New(env, reply->str).ThrowAsJavaScriptException();
+//         freeReplyObject(reply);
+//         return env.Null();
+//     }
+//     if(reply->type!=REDIS_REPLY_STATUS || strcmp(reply->str, "OK")!=0) {
+//         Napi::TypeError::New(env, "error pause()").ThrowAsJavaScriptException();
+//         freeReplyObject(reply);
+//         return env.Null();
+//     }
 
-    freeReplyObject(reply);
-    return env.Null();
-}
+//     freeReplyObject(reply);
+//     return env.Null();
+// }
 
-Napi::Value SrvApi::ContinueCase(const Napi::CallbackInfo& info) {
-    Napi::Env env = info.Env();
+// Napi::Value SrvApi::ContinueCase(const Napi::CallbackInfo& info) {
+//     Napi::Env env = info.Env();
 
-    if (info.Length() != 2) {
-        Napi::TypeError::New(env, "Wrong number of arguments").ThrowAsJavaScriptException();
-        return env.Null();
-    }
+//     if (info.Length() != 2) {
+//         Napi::TypeError::New(env, "Wrong number of arguments").ThrowAsJavaScriptException();
+//         return env.Null();
+//     }
 
-    if (!info[0].IsNumber() || !info[1].IsString()) {
-        Napi::TypeError::New(env, "Need proj_id, and case file").ThrowAsJavaScriptException();
-        return env.Null();
-    }
+//     if (!info[0].IsNumber() || !info[1].IsString()) {
+//         Napi::TypeError::New(env, "Need proj_id, and case file").ThrowAsJavaScriptException();
+//         return env.Null();
+//     }
 
-    char cmd[] = "continue";
-    char proj_id[16];
-    sprintf(proj_id, "%i", info[0].As<Napi::Number>().Int32Value());
-    const char* casefile = info[1].As<Napi::String>().Utf8Value().c_str();
+//     char cmd[] = "continue";
+//     char proj_id[16];
+//     sprintf(proj_id, "%i", info[0].As<Napi::Number>().Int32Value());
+//     const char* casefile = info[1].As<Napi::String>().Utf8Value().c_str();
 
-    const char* argv[] = {cmd, proj_id, casefile};
-    size_t arglen[] = {strlen(cmd), strlen(proj_id), strlen(casefile)};
+//     const char* argv[] = {cmd, proj_id, casefile};
+//     size_t arglen[] = {strlen(cmd), strlen(proj_id), strlen(casefile)};
 
-    auto reply = (redisReply*)redisCommandArgv(_st_srv, 3, argv, arglen);
-    if(reply ==nullptr) {
-        Napi::TypeError::New(env, _st_srv->errstr).ThrowAsJavaScriptException();
-        return env.Null();
-    }
-    if(reply->type ==REDIS_REPLY_ERROR) {
-        Napi::TypeError::New(env, reply->str).ThrowAsJavaScriptException();
-        freeReplyObject(reply);
-        return env.Null();
-    }
-    if(reply->type!=REDIS_REPLY_STATUS || strcmp(reply->str, "ok")!=0) {
-        Napi::TypeError::New(env, "error continue()").ThrowAsJavaScriptException();
-        freeReplyObject(reply);
-        return env.Null();
-    }
+//     auto reply = (redisReply*)redisCommandArgv(_st_srv, 3, argv, arglen);
+//     if(reply ==nullptr) {
+//         Napi::TypeError::New(env, _st_srv->errstr).ThrowAsJavaScriptException();
+//         return env.Null();
+//     }
+//     if(reply->type ==REDIS_REPLY_ERROR) {
+//         Napi::TypeError::New(env, reply->str).ThrowAsJavaScriptException();
+//         freeReplyObject(reply);
+//         return env.Null();
+//     }
+//     if(reply->type!=REDIS_REPLY_STATUS || strcmp(reply->str, "OK")!=0) {
+//         Napi::TypeError::New(env, "error continue()").ThrowAsJavaScriptException();
+//         freeReplyObject(reply);
+//         return env.Null();
+//     }
 
-    freeReplyObject(reply);
-    return env.Null();
-}
+//     freeReplyObject(reply);
+//     return env.Null();
+// }
 
 Napi::Value SrvApi::Clear(const Napi::CallbackInfo& info) {
     Napi::Env env = info.Env();
@@ -353,7 +354,7 @@ Napi::Value SrvApi::Clear(const Napi::CallbackInfo& info) {
         return env.Null();
     }
 
-    if(reply->type!=REDIS_REPLY_STATUS || strcmp(reply->str, "ok")!=0) {
+    if(reply->type!=REDIS_REPLY_STATUS || strcmp(reply->str, "OK")!=0) {
         Napi::TypeError::New(env, "error clear()").ThrowAsJavaScriptException();
         freeReplyObject(reply);
         return env.Null();
@@ -389,8 +390,8 @@ Napi::Function SrvApi::GetClass(Napi::Env env) {
         SrvApi::InstanceMethod("prepare", &SrvApi::Prepare),
         SrvApi::InstanceMethod("start", &SrvApi::StartCase),
         SrvApi::InstanceMethod("stop", &SrvApi::StopCase),
-        SrvApi::InstanceMethod("pause", &SrvApi::PauseCase),
-        SrvApi::InstanceMethod("continue", &SrvApi::ContinueCase),
+        // SrvApi::InstanceMethod("pause", &SrvApi::PauseCase),
+        // SrvApi::InstanceMethod("continue", &SrvApi::ContinueCase),
         SrvApi::InstanceMethod("clear", &SrvApi::Clear),
         SrvApi::InstanceMethod("exit", &SrvApi::Exit)
     });
