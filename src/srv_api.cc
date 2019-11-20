@@ -1,6 +1,6 @@
 
 #include "srv_api.h"
-
+#include <string>
 
 using namespace Napi;
 
@@ -133,11 +133,11 @@ Napi::Value SrvApi::Prepare(const Napi::CallbackInfo& info) {
     char cmd[] = "prepare";
     char proj_id[16];
     sprintf(proj_id, "%i", info[0].As<Napi::Number>().Int32Value());
-    const char* interface = info[1].As<Napi::String>().Utf8Value().c_str();
-    const char* protocol = info[2].As<Napi::String>().Utf8Value().c_str();
+    std::string interface = info[1].As<Napi::String>().Utf8Value();
+    std::string protocol = info[2].As<Napi::String>().Utf8Value();
 
-    const char* argv[] = {cmd, proj_id, interface, protocol };
-    size_t arglen[] = {strlen(cmd), strlen(proj_id), strlen(interface), strlen(protocol)};
+    const char* argv[] = {cmd, proj_id, interface.c_str(), protocol.c_str() };
+    size_t arglen[] = {strlen(cmd), strlen(proj_id), interface.size(), protocol.size()};
 
     auto reply = (redisReply*)redisCommandArgv(_st_srv, 4, argv, arglen);
     if(reply == nullptr) {
