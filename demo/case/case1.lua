@@ -12,14 +12,14 @@ function main()
     print("Frame: ", key)
     end
 
-    -- write(cit['do'], true)
-    -- print("aaa")
-    -- write(cit['do'], false)
-    -- print("bbb")
-    -- write(cit.ad, 100)
-    -- print("ccc")
-    -- print("MaxStep: ", maxStepTick())
-    -- print("ddd")
+    write(cit['do'], true)
+    print("writed do 1")
+    write(cit['do'], false)
+    print("writed do 2")
+    write(cit.ad, 100)
+    print("wirted ad")
+    print("MaxStep: ", maxStepTick())
+    --assert.ok(false, "error1")
 end
 
 main()
