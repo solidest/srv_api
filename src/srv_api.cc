@@ -19,7 +19,9 @@ SrvApi::SrvApi(const Napi::CallbackInfo& info) : ObjectWrap(info) {
 
     this->_greeterName = info[0].As<Napi::String>().Utf8Value();
 
-    _st_srv = redisConnect(info[0].As<Napi::String>().Utf8Value().c_str(), info[1].As<Napi::Number>().Int32Value());
+    std::string ip = info[0].As<Napi::String>().Utf8Value();
+
+    _st_srv = redisConnect(ip.c_str(), info[1].As<Napi::Number>().Int32Value());
     if (_st_srv == NULL || _st_srv->err) {
 
         char buff[800];
@@ -179,17 +181,17 @@ Napi::Value SrvApi::StartCase(const Napi::CallbackInfo& info) {
     char cmd[] = "start";
     char proj_id[16];
     sprintf(proj_id, "%i", info[0].As<Napi::Number>().Int32Value());
-    const char* casefile = info[1].As<Napi::String>().Utf8Value().c_str();
+    std::string casefile = info[1].As<Napi::String>().Utf8Value();
 
-    const char* argv[] = {cmd, proj_id, casefile};
-    size_t arglen[] = {strlen(cmd), strlen(proj_id), strlen(casefile)};
+    const char* argv[] = {cmd, proj_id, casefile.c_str()};
+    size_t arglen[] = {strlen(cmd), strlen(proj_id), casefile.size()};
 
     auto reply = (redisReply*)redisCommandArgv(_st_srv, 3, argv, arglen);
     if(reply ==nullptr) {
         Napi::TypeError::New(env, _st_srv->errstr).ThrowAsJavaScriptException();
         return env.Null();
     }
-    if(reply->type ==REDIS_REPLY_ERROR) {
+    if(reply->type==REDIS_REPLY_ERROR) {
         Napi::TypeError::New(env, reply->str).ThrowAsJavaScriptException();
         freeReplyObject(reply);
         return env.Null();
@@ -221,10 +223,10 @@ Napi::Value SrvApi::StopCase(const Napi::CallbackInfo& info) {
     char cmd[] = "stop";
     char proj_id[16];
     sprintf(proj_id, "%i", info[0].As<Napi::Number>().Int32Value());
-    const char* casefile = info[1].As<Napi::String>().Utf8Value().c_str();
+    std::string casefile = info[1].As<Napi::String>().Utf8Value();
 
-    const char* argv[] = {cmd, proj_id, casefile};
-    size_t arglen[] = {strlen(cmd), strlen(proj_id), strlen(casefile)};
+    const char* argv[] = {cmd, proj_id, casefile.c_str()};
+    size_t arglen[] = {strlen(cmd), strlen(proj_id), casefile.size()};
 
     auto reply = (redisReply*)redisCommandArgv(_st_srv, 3, argv, arglen);
     if(reply ==nullptr) {
