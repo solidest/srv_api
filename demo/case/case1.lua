@@ -58,12 +58,24 @@ end
 
 function test_read()
     --recv
-    print("read di value: ", read(cit.di))
+    print("read di value1: ", read(cit.di))
+    print("read di value2: ", read(cit.di))
     print("read da value: ", read(cit.da))
     v, o = recvBuffer(cit.serial)
     print("recv serial buffer1:  string:", v, "  option:", o)
     print("recv serial buffer2:  ", recvBuffer(cit.serial))
 end
+
+function test_assertchange()
+    write(cit['do'], true)
+    write(cit['do'], false)
+    assert.changeHeigh(cit.di, 3000)
+    write(cit['do'], false)
+    write(cit['do'], true)
+    assert.changeHeigh(cit.di, 3000, "change ok")
+    assert.changeHeigh(cit.di, 3000, "change bad")
+end
+     
 
 function test_other()
     print("MaxStep: ", maxStepTick())
@@ -71,17 +83,19 @@ end
 
 function main()
     print("\n\nStart run case:")
-
     test_print()
     test_write()
     test_sendBuffer()
     test_send()
     test_delay()
-    --test_assert()
     test_read()
     test_recv()
+    --test_assert()
+    --test_assertchange()
     test_other()
-
 end
 
+
 main()
+--print("\n\nStart run case:")
+--test_print()
