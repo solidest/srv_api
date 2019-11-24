@@ -35,7 +35,7 @@ end
 function test_send()
     --send
     local gps_data = { ["经度信息"]=99.888, ["纬度信息"]=777.678}
-    send(cit['232'], cpt.pr_GPS, gps_data, {a=true});
+    send(cit['232'], cpt.pr_GPS, gps_data, {a=true})
 end
 
 function test_recv()
@@ -52,8 +52,8 @@ end
 
 function test_assert()
     --assert
-    assert.ok(true);
-    assert.ok(false, "eeeeeee");
+    assert.ok(true)
+    assert.ok(false, "eeeeeee")
 end
 
 function test_read()
@@ -81,6 +81,33 @@ function test_other()
     print("MaxStep: ", maxStepTick())
 end
 
+function afterRecvProt2(value, option)
+    print("Async recved2: v=", value, "  o=", option)
+    delay(500)
+    write(cit['do'], true)
+    local b = read(cit.di)
+    print("read in async2:", b)
+    
+end
+
+function afterRecvProt(value, option)
+    print("Async recved: v=", value, "  o=", option)
+    delay(500)
+    write(cit['do'], true)
+    local b = read(cit.di)
+    print("read in async:", b)
+    recvAsync(cit['232'], cpt.pr_GPS, 3000, afterRecvProt2)
+    local gps_data = { ["经度信息"]=99.888, ["纬度信息"]=777 }
+    send(cit['232'], cpt.pr_GPS, gps_data, {a=true})
+end
+
+function test_async()
+    recvAsync(cit['232'], cpt.pr_GPS, 3000, afterRecvProt)
+    local gps_data = { ["经度信息"]=99.888, ["纬度信息"]=777 }
+    send(cit['232'], cpt.pr_GPS, gps_data, {a=true})
+end
+
+
 function main()
     print("\n\nStart run case:")
     test_print()
@@ -92,6 +119,7 @@ function main()
     test_recv()
     --test_assert()
     --test_assertchange()
+    test_async()
     test_other()
 end
 

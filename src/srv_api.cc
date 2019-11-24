@@ -210,25 +210,7 @@ Napi::Value SrvApi::StartCase(const Napi::CallbackInfo& info) {
 Napi::Value SrvApi::StopCase(const Napi::CallbackInfo& info) {
     Napi::Env env = info.Env();
 
-    if (info.Length() != 2) {
-        Napi::TypeError::New(env, "Wrong number of arguments").ThrowAsJavaScriptException();
-        return env.Null();
-    }
-
-    if (!info[0].IsNumber() || !info[1].IsString()) {
-        Napi::TypeError::New(env, "Need proj_id, and case file").ThrowAsJavaScriptException();
-        return env.Null();
-    }
-
-    char cmd[] = "stop";
-    char proj_id[16];
-    sprintf(proj_id, "%i", info[0].As<Napi::Number>().Int32Value());
-    std::string casefile = info[1].As<Napi::String>().Utf8Value();
-
-    const char* argv[] = {cmd, proj_id, casefile.c_str()};
-    size_t arglen[] = {strlen(cmd), strlen(proj_id), casefile.size()};
-
-    auto reply = (redisReply*)redisCommandArgv(_st_srv, 3, argv, arglen);
+    auto reply = (redisReply*)redisCommand(_st_srv, "stop");
     if(reply ==nullptr) {
         Napi::TypeError::New(env, _st_srv->errstr).ThrowAsJavaScriptException();
         return env.Null();
