@@ -96,8 +96,8 @@ function testLoop() {
 }
 
 
-//testLoop();
-testBasic();
+testLoop();
+//testBasic();
 //testStop();
 //assert.doesNotThrow(testBasic, undefined, "testBasic threw an expection");
 assert.throws(testInvalidParams, undefined, "testInvalidParams didn't throw");

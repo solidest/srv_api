@@ -71,31 +71,28 @@ function test_assert()
     assert.ok(false, "eeeeeee")
 end
 
-function delay_write1()
-    write(cit['do'], false)
+function delay_write(b,i)
+    print(i)
+    write(cit['do'], b)
 end
 
-function delay_write2()
-    write(cit['do'], true)
-    print("delay_write2")
-end
 
 function test_assertchange()
-    print("")
     write(cit['do'], false)
     delay(500)
-    timer.timeout(1000, delay_write2)
+    timer.timeout(1000, delay_write, true, 1)
     assert.changeHeigh(cit.di, 5000, "not changeHeight")
 
-    timer.timeout(900, delay_write1)
+    timer.timeout(900, delay_write, false, 2)
     assert.changeLow(cit.di, 1200, "not changeLow")
     print("assert change test passed")
     
 end
      
-
 function test_other()
     print("MaxStep: ", maxStepTick())
+    reset(cit['232'])
+    print("reset 232 interface")
 end
 
 function afterRecvProt2(value, option)
@@ -133,6 +130,7 @@ function test_waityesno()
 end
 
 function test_timer()
+
     print("--on timeout--")
     local gps_data = { ["经度信息"]=99.888, ["纬度信息"]=777 }
     send(cit['232'], cpt.pr_GPS, gps_data, {a=true})
@@ -163,5 +161,3 @@ end
 
 main()
 
---print("\n\nStart run case:")
---test_print()
