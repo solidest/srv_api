@@ -107,6 +107,20 @@ function test_async()
     send(cit['232'], cpt.pr_GPS, gps_data, {a=true})
 end
 
+function test_waityesno()
+    print("wait yes or no??")
+    local is_yes = waitYesNo("yes or no??")
+    print("result is: ", is_yes)
+end
+
+function test_timer()
+    print("--on timeout--")
+    local gps_data = { ["经度信息"]=99.888, ["纬度信息"]=777 }
+    send(cit['232'], cpt.pr_GPS, gps_data, {a=true})
+    delay(263)
+    test_async()
+end
+
 
 function main()
     print("\n\nStart run case:")
@@ -120,9 +134,15 @@ function main()
     --test_assert()
     --test_assertchange()
     test_async()
+    timer.timeout(1000, test_timer)
+    local t = timer.interval(100, 2000, test_timer)
     test_other()
+    delay(1000)
+    --exit()
+    timer.stop(t)
+    delay(2000)
+    test_waityesno()
 end
-
 
 main()
 --print("\n\nStart run case:")

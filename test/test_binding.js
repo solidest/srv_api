@@ -65,7 +65,7 @@ function testStop()
     let script = "/home/pi/srv_api/demo/case/case1.lua";
     srv.start(1, script);
 
-    sleep(100);
+    sleep(1200);
     srv.stop();
 
     let i=1;
@@ -96,8 +96,8 @@ function testLoop() {
 }
 
 
-testLoop();
-//testBasic();
+//testLoop();
+testBasic();
 //testStop();
 //assert.doesNotThrow(testBasic, undefined, "testBasic threw an expection");
 assert.throws(testInvalidParams, undefined, "testInvalidParams didn't throw");
