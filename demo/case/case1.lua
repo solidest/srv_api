@@ -14,23 +14,38 @@ function test_print()
     end
 end
 
-function test_write()
+function test_write_read()
     --write
     write(cit['do'], true)
-    print("writed do 1")
+    delay(100)
+    print("writed do 1: ", true)
+    print("read di value1: ", read(cit.di))
+
     write(cit['do'], false)
-    print("writed do 2")
+    delay(100)
+    print("writed do 2: ", false)
+    print("read di value2: ", read(cit.di))
+
     write(cit.ad, 100)
-    print("wirted ad")
-end
+    delay(100)
+    print("wirted ad: ", 100)
+    print("read da value: ", read(cit.da))
 
-function test_sendBuffer()
     --sendBuffer
-    local str = string.format("test %d", 100)
+    local str = string.format("strdemo%dstrdeom", 12345)
     sendBuffer(cit.serial, str);
-    print("sendBuffer serial")
+    print("sendBuffer serial 1: ", str)
+    sendBuffer(cit.serial, str..str, {a=true});
+    print("sendBuffer serial 2: ", str..str)
+
+    local v, o = recvBuffer(cit.serial)
+    print("recv serial buffer1:  v = ", v, "  o = ", o)
+    v, o = recvBuffer(cit.serial)
+    print("recv serial buffer2:  v = ", v, "  o = ", o)
+    print("recv serial buffer3:  ", recvBuffer(cit.serial))
 
 end
+
 
 function test_send()
     --send
@@ -40,7 +55,7 @@ end
 
 function test_recv()
     local v, o = recv(cit['232'], cpt.pr_GPS, 3000);
-    print("recv prot v: ", v["经度信息"], ", ", v["纬度信息"], "  o: ", o)
+    print("recv prot v:", v,  "o:", o)
 end
 
 function test_delay()
@@ -56,24 +71,26 @@ function test_assert()
     assert.ok(false, "eeeeeee")
 end
 
-function test_read()
-    --recv
-    print("read di value1: ", read(cit.di))
-    print("read di value2: ", read(cit.di))
-    print("read da value: ", read(cit.da))
-    v, o = recvBuffer(cit.serial)
-    print("recv serial buffer1:  string:", v, "  option:", o)
-    print("recv serial buffer2:  ", recvBuffer(cit.serial))
+function delay_write1()
+    write(cit['do'], false)
+end
+
+function delay_write2()
+    write(cit['do'], true)
+    print("delay_write2")
 end
 
 function test_assertchange()
-    write(cit['do'], true)
+    print("")
     write(cit['do'], false)
-    assert.changeHeigh(cit.di, 3000)
-    write(cit['do'], false)
-    write(cit['do'], true)
-    assert.changeHeigh(cit.di, 3000, "change ok")
-    assert.changeHeigh(cit.di, 3000, "change bad")
+    delay(500)
+    timer.timeout(1000, delay_write2)
+    assert.changeHeigh(cit.di, 5000, "not changeHeight")
+
+    timer.timeout(900, delay_write1)
+    assert.changeLow(cit.di, 1200, "not changeLow")
+    print("assert change test passed")
+    
 end
      
 
@@ -96,6 +113,8 @@ function afterRecvProt(value, option)
     write(cit['do'], true)
     local b = read(cit.di)
     print("read in async:", b)
+    local gps_data = { ["经度信息"]=99.888, ["纬度信息"]=777 }
+    send(cit['232'], cpt.pr_GPS, gps_data, {a=true})
     recvAsync(cit['232'], cpt.pr_GPS, 3000, afterRecvProt2)
     local gps_data = { ["经度信息"]=99.888, ["纬度信息"]=777 }
     send(cit['232'], cpt.pr_GPS, gps_data, {a=true})
@@ -125,25 +144,24 @@ end
 function main()
     print("\n\nStart run case:")
     test_print()
-    test_write()
-    test_sendBuffer()
+    test_write_read()
     test_send()
     test_delay()
-    test_read()
     test_recv()
     --test_assert()
-    --test_assertchange()
+    test_assertchange()
     test_async()
     timer.timeout(1000, test_timer)
     local t = timer.interval(100, 2000, test_timer)
     test_other()
     delay(1000)
-    --exit()
     timer.stop(t)
     delay(2000)
+    timer.timeout(3000, exit)
     test_waityesno()
 end
 
 main()
+
 --print("\n\nStart run case:")
 --test_print()
