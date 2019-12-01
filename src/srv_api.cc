@@ -330,7 +330,6 @@ Napi::Value SrvApi::PauseInfo(const Napi::CallbackInfo& info) {
     if(reply) {
         freeReplyObject(reply);
     }
-    std::cout << s << std::endl;
 
     return Napi::String::New(env, s.c_str());
 }
