@@ -23,6 +23,8 @@ public:
     Napi::Value Clear(const Napi::CallbackInfo&);
     Napi::Value Exit(const Napi::CallbackInfo&);
     Napi::Value GetOutput(const Napi::CallbackInfo&);
+    Napi::Value PauseInfo(const Napi::CallbackInfo&);
+    Napi::Value Continue(const Napi::CallbackInfo&);
 
     static Napi::Function GetClass(Napi::Env);
 

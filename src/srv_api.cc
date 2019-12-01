@@ -314,6 +314,51 @@ Napi::Value SrvApi::Exit(const Napi::CallbackInfo& info) {
     return env.Null();
 }
 
+Napi::Value SrvApi::PauseInfo(const Napi::CallbackInfo& info) {
+    Napi::Env env = info.Env();
+
+    auto reply = (redisReply*)redisCommand(_st_srv, "puaseInfo");
+
+    std::string s = "";
+    if(reply && reply->type==REDIS_REPLY_STRING && reply->len>0) {
+        s = reply->str;
+        if(s=="nil") {
+            s = "";
+        }
+    }
+    
+    if(reply) {
+        freeReplyObject(reply);
+    }
+    std::cout << s << std::endl;
+
+    return Napi::String::New(env, s.c_str());
+}
+
+Napi::Value SrvApi::Continue(const Napi::CallbackInfo& info) {
+    Napi::Env env = info.Env();
+
+    if (info.Length() != 1) {
+        Napi::TypeError::New(env, "Wrong number of arguments").ThrowAsJavaScriptException();
+        return env.Null();
+    }
+
+    if (!info[0].IsString()) {
+        Napi::TypeError::New(env, "Need string").ThrowAsJavaScriptException();
+        return env.Null();
+    }
+
+    std::string s = info[0].As<Napi::String>().Utf8Value();
+
+    const char* argv[] = {"continue", s.c_str()};
+    size_t arglen[] = {strlen("continue"), s.size()};
+    auto reply = (redisReply*)redisCommandArgv(_st_srv, 2, argv, arglen);
+
+    if(reply) {
+        freeReplyObject(reply);
+    }    
+    return env.Null();
+}
 
 Napi::Function SrvApi::GetClass(Napi::Env env) {
     return DefineClass(env, "SrvApi", {
@@ -326,6 +371,8 @@ Napi::Function SrvApi::GetClass(Napi::Env env) {
         SrvApi::InstanceMethod("clear", &SrvApi::Clear),
         SrvApi::InstanceMethod("exit", &SrvApi::Exit),
         SrvApi::InstanceMethod("output", &SrvApi::GetOutput),
+        SrvApi::InstanceMethod("pauseInfo", &SrvApi::PauseInfo),
+        SrvApi::InstanceMethod("continue", &SrvApi::Continue),
     });
 }
 
