@@ -44,6 +44,7 @@ function testBasic()
     // for(var t = Date.now();Date.now() - t <= 200;);
     // s = srv.state();
     // assert.ok(s.work_type=="prepared");
+    console.log(srv.output(-100, -1));
 
     srv.close()
     //srv.exit();
@@ -95,11 +96,16 @@ function testLoop() {
     }
 }
 
+function testOutPut() {
+    let srv = new SrvApi("127.0.0.1", 1210);
+    console.log(srv.output(-100, -1));
+}
 
-testLoop();
+//testLoop();
 //testBasic();
 //testStop();
 //assert.doesNotThrow(testBasic, undefined, "testBasic threw an expection");
+testOutPut();
 assert.throws(testInvalidParams, undefined, "testInvalidParams didn't throw");
 
 console.log("Tests passed- everything looks OK!");
