@@ -85,6 +85,9 @@ Napi::Value SrvApi::State(const Napi::CallbackInfo& info) {
     if(reply->elements>2) {
         res.Set("run_case", reply->element[2]->str);
     }
+    if(reply->elements>3) {
+        res.Set("dbid", reply->element[3]->str);
+    }
     freeReplyObject(reply);
     return res;
 }
@@ -171,12 +174,12 @@ Napi::Value SrvApi::Prepare(const Napi::CallbackInfo& info) {
 Napi::Value SrvApi::StartCase(const Napi::CallbackInfo& info) {
     Napi::Env env = info.Env();
 
-    if (info.Length() != 2) {
+    if (info.Length() != 3) {
         Napi::TypeError::New(env, "Wrong number of arguments").ThrowAsJavaScriptException();
         return env.Null();
     }
 
-    if (!info[0].IsNumber() || !info[1].IsString()) {
+    if (!info[0].IsNumber() || !info[1].IsString() || !info[2].IsString()) {
         Napi::TypeError::New(env, "Need proj_id, and case file").ThrowAsJavaScriptException();
         return env.Null();
     }
@@ -185,9 +188,10 @@ Napi::Value SrvApi::StartCase(const Napi::CallbackInfo& info) {
     char proj_id[16];
     sprintf(proj_id, "%i", info[0].As<Napi::Number>().Int32Value());
     std::string casefile = info[1].As<Napi::String>().Utf8Value();
+    std::string dbid = info[2].As<Napi::String>().Utf8Value();
 
-    const char* argv[] = {cmd, proj_id, casefile.c_str()};
-    size_t arglen[] = {strlen(cmd), strlen(proj_id), casefile.size()};
+    const char* argv[] = {cmd, proj_id, casefile.c_str(), dbid.c_str()};
+    size_t arglen[] = {strlen(cmd), strlen(proj_id), casefile.size(), dbid.size()};
 
     auto reply = (redisReply*)redisCommandArgv(_st_srv, 3, argv, arglen);
     if(reply ==nullptr) {
@@ -231,34 +235,6 @@ Napi::Value SrvApi::StopCase(const Napi::CallbackInfo& info) {
 
     freeReplyObject(reply);
     return env.Null();
-}
-
-//get out put lines
-Napi::Value SrvApi::GetOutput(const Napi::CallbackInfo& info) {
-    Napi::Env env = info.Env();
-    if (info.Length() != 2) {
-        Napi::TypeError::New(env, "Wrong number of arguments").ThrowAsJavaScriptException();
-        return env.Null();
-    }
-
-    if (!info[0].IsNumber() || !info[1].IsNumber() ) {
-        Napi::TypeError::New(env, "Need start id, stop id").ThrowAsJavaScriptException();
-        return env.Null();
-    }
-
-    auto db = redisConnectUnix(REDIS_UNIX_SOCKET);
-    auto reply = (redisReply*)redisCommand(db, "LRANGE %s %i %i", "%sysout", info[0].As<Napi::Number>().Int32Value(), info[1].As<Napi::Number>().Int32Value());
-    auto res = json::array();
-    if(reply->elements>0) {
-        for(int i=0; i<(int)reply->elements; i++) {
-            auto r = reply->element[i];
-            res.push_back(json::from_msgpack(r->str, r->len));
-        }
-    }
-    // std::cout << res << std::endl;
-    freeReplyObject(reply);
-    redisFree(db);
-    return Napi::String::New(env, res.dump());
 }
 
 
@@ -369,7 +345,6 @@ Napi::Function SrvApi::GetClass(Napi::Env env) {
         SrvApi::InstanceMethod("stop", &SrvApi::StopCase),
         SrvApi::InstanceMethod("clear", &SrvApi::Clear),
         SrvApi::InstanceMethod("exit", &SrvApi::Exit),
-        SrvApi::InstanceMethod("output", &SrvApi::GetOutput),
         SrvApi::InstanceMethod("pauseInfo", &SrvApi::PauseInfo),
         SrvApi::InstanceMethod("continue", &SrvApi::Continue),
     });

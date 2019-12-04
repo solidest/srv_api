@@ -5,7 +5,6 @@
 #include <napi.h>
 #include "hiredis/hiredis.h"
 
-#define REDIS_UNIX_SOCKET "/var/run/redis/redis-server.sock"
 
 class SrvApi : public Napi::ObjectWrap<SrvApi>
 {
@@ -22,7 +21,6 @@ public:
     Napi::Value StopCase(const Napi::CallbackInfo&);
     Napi::Value Clear(const Napi::CallbackInfo&);
     Napi::Value Exit(const Napi::CallbackInfo&);
-    Napi::Value GetOutput(const Napi::CallbackInfo&);
     Napi::Value PauseInfo(const Napi::CallbackInfo&);
     Napi::Value Continue(const Napi::CallbackInfo&);
 
