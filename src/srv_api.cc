@@ -127,7 +127,7 @@ Napi::Value SrvApi::Ping(const Napi::CallbackInfo& info) {
 Napi::Value SrvApi::Prepare(const Napi::CallbackInfo& info) {
     Napi::Env env = info.Env();
 
-    if (info.Length() != 3) {
+    if (info.Length() != 4) {
         Napi::TypeError::New(env, "Wrong number of arguments").ThrowAsJavaScriptException();
         return env.Null();
     }
