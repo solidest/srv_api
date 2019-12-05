@@ -180,7 +180,7 @@ Napi::Value SrvApi::StartCase(const Napi::CallbackInfo& info) {
     }
 
     if (!info[0].IsNumber() || !info[1].IsString() || !info[2].IsString()) {
-        Napi::TypeError::New(env, "Need proj_id, and case file").ThrowAsJavaScriptException();
+        Napi::TypeError::New(env, "Need proj_id, case_file and db_id").ThrowAsJavaScriptException();
         return env.Null();
     }
 
@@ -193,7 +193,7 @@ Napi::Value SrvApi::StartCase(const Napi::CallbackInfo& info) {
     const char* argv[] = {cmd, proj_id, casefile.c_str(), dbid.c_str()};
     size_t arglen[] = {strlen(cmd), strlen(proj_id), casefile.size(), dbid.size()};
 
-    auto reply = (redisReply*)redisCommandArgv(_st_srv, 3, argv, arglen);
+    auto reply = (redisReply*)redisCommandArgv(_st_srv, 4, argv, arglen);
     if(reply ==nullptr) {
         Napi::TypeError::New(env, _st_srv->errstr).ThrowAsJavaScriptException();
         return env.Null();
