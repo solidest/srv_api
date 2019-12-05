@@ -132,7 +132,7 @@ Napi::Value SrvApi::Prepare(const Napi::CallbackInfo& info) {
         return env.Null();
     }
 
-    if (!info[0].IsNumber() || !info[1].IsString() || !info[2].IsString()) {
+    if (!info[0].IsNumber() || !info[1].IsString() || !info[2].IsString() || !info[3].IsString()) {
         Napi::TypeError::New(env, "Need proj_id, interface_path and protocol_path").ThrowAsJavaScriptException();
         return env.Null();
     }
@@ -143,11 +143,12 @@ Napi::Value SrvApi::Prepare(const Napi::CallbackInfo& info) {
     sprintf(proj_id, "%i", info[0].As<Napi::Number>().Int32Value());
     std::string interface = info[1].As<Napi::String>().Utf8Value();
     std::string protocol = info[2].As<Napi::String>().Utf8Value();
+    std::string xtra = info[3].As<Napi::String>().Utf8Value();
 
-    const char* argv[] = {cmd, proj_id, interface.c_str(), protocol.c_str() };
-    size_t arglen[] = {strlen(cmd), strlen(proj_id), interface.size(), protocol.size()};
+    const char* argv[] = {cmd, proj_id, interface.c_str(), protocol.c_str(), xtra.c_str() };
+    size_t arglen[] = {strlen(cmd), strlen(proj_id), interface.size(), protocol.size(), xtra.size()};
 
-    auto reply = (redisReply*)redisCommandArgv(_st_srv, 4, argv, arglen);
+    auto reply = (redisReply*)redisCommandArgv(_st_srv, 5, argv, arglen);
     if(reply == nullptr) {
         Napi::TypeError::New(env, _st_srv->errstr).ThrowAsJavaScriptException();
         return env.Null();
