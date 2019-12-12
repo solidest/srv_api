@@ -150,6 +150,7 @@ Napi::Value SrvApi::Prepare(const Napi::CallbackInfo& info) {
     size_t arglen[] = {strlen(cmd), strlen(proj_id), interface.size(), protocol.size(), xtra.size()};
 
     auto reply = (redisReply*)redisCommandArgv(_st_srv, 5, argv, arglen);
+ 
     if(reply == nullptr) {
         Napi::TypeError::New(env, _st_srv->errstr).ThrowAsJavaScriptException();
         return env.Null();
