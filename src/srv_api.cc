@@ -52,10 +52,11 @@ Napi::Value SrvApi::Close(const Napi::CallbackInfo& info) {
 }
 
 void SrvApi::Finalize(Napi::Env env){
-    redisFree(_st_srv);
-    _st_srv = nullptr;
+    if(_st_srv) {
+        redisFree(_st_srv);
+        _st_srv = nullptr;        
+    }
 }
-
 
 //get state of server
 Napi::Value SrvApi::State(const Napi::CallbackInfo& info) {
@@ -348,6 +349,15 @@ Napi::Function SrvApi::GetClass(Napi::Env env) {
         SrvApi::InstanceMethod("exit", &SrvApi::Exit),
         SrvApi::InstanceMethod("pauseInfo", &SrvApi::PauseInfo),
         SrvApi::InstanceMethod("continue", &SrvApi::Continue),
+        SrvApi::InstanceMethod("outDigitial", &SrvApi::OutDigital),
+        SrvApi::InstanceMethod("outAnalog", &SrvApi::OutAnalog),
+        SrvApi::InstanceMethod("outData", &SrvApi::OutData),
+        SrvApi::InstanceMethod("outProt", &SrvApi::OutProt),
+        SrvApi::InstanceMethod("inDigital", &SrvApi::InDigital),
+        SrvApi::InstanceMethod("inAnalog", &SrvApi::InAnalog),
+        SrvApi::InstanceMethod("inData", &SrvApi::InData),
+        SrvApi::InstanceMethod("inProt", &SrvApi::InProt),
+        SrvApi::InstanceMethod("sysOut", &SrvApi::SysOut),
     });
 }
 
@@ -356,5 +366,122 @@ Napi::Object Init(Napi::Env env, Napi::Object exports) {
     exports.Set(name, SrvApi::GetClass(env));
     return exports;
 }
+
+// ================================================== db command ================================================================
+Napi::Value SrvApi::doIOCmd(const Napi::CallbackInfo& info, const char* cmd) {
+    Napi::Env env = info.Env();
+    if (info.Length() != 3) {
+        Napi::TypeError::New(env, "Wrong number of arguments").ThrowAsJavaScriptException();
+        return env.Null();
+    }
+
+    if (!info[0].IsString() || !info[1].IsNumber() || !info[2].IsNumber()) {
+        Napi::TypeError::New(env, "Need interface, start_timestamp, limit").ThrowAsJavaScriptException();
+        return env.Null();
+    }
+
+    std::string intf = info[0].As<Napi::String>().Utf8Value();
+    std::string tm = std::to_string(info[0].As<Napi::Number>().Int64Value());
+    std::string limit = std::to_string(info[0].As<Napi::Number>().Int32Value());
+
+    const char* argv[] = {cmd, intf.c_str(), tm.c_str(), limit.c_str() };
+    size_t arglen[] = {strlen(cmd), intf.size(), tm.size(), limit.size()};
+    auto reply = (redisReply*)redisCommandArgv(_st_srv, 4, argv, arglen);
+    if(reply ==nullptr) {
+        Napi::TypeError::New(env, _st_srv->errstr).ThrowAsJavaScriptException();
+        return env.Null();
+    }
+    if(reply->type == REDIS_REPLY_ERROR) {
+        Napi::TypeError::New(env, reply->str).ThrowAsJavaScriptException();
+        freeReplyObject(reply);
+        return env.Null();
+    }
+    if(reply->type!= REDIS_REPLY_STRING) {
+        char buff[800];
+        sprintf(buff, "error%i %s()", reply->type, cmd);
+        Napi::TypeError::New(env, buff).ThrowAsJavaScriptException();
+        freeReplyObject(reply);
+        return env.Null();
+    }
+
+    auto res = Napi::String::New(env, reply->str);
+    freeReplyObject(reply);
+    return res;
+}
+
+
+Napi::Value SrvApi::OutDigital(const Napi::CallbackInfo& info) {
+    return doIOCmd(info, "outDigitial");
+}
+
+Napi::Value SrvApi::OutAnalog(const Napi::CallbackInfo& info) {
+    return doIOCmd(info, "outAnalog");
+}
+
+Napi::Value SrvApi::OutData(const Napi::CallbackInfo& info) {
+    return doIOCmd(info, "outData");
+}
+
+Napi::Value SrvApi::InDigital(const Napi::CallbackInfo& info) {
+    return doIOCmd(info, "inDigital");    
+}
+
+Napi::Value SrvApi::InAnalog(const Napi::CallbackInfo& info) {
+    return doIOCmd(info, "inAnalog");    
+
+}
+
+Napi::Value SrvApi::InData(const Napi::CallbackInfo& info) {
+    return doIOCmd(info, "inData");    
+}
+
+Napi::Value SrvApi::SysOut(const Napi::CallbackInfo& info) {
+    Napi::Env env = info.Env();
+    if (info.Length() != 2) {
+        Napi::TypeError::New(env, "Wrong number of arguments").ThrowAsJavaScriptException();
+        return env.Null();
+    }
+
+    if (!info[0].IsNumber() || !info[1].IsNumber()) {
+        Napi::TypeError::New(env, "Need start_timestamp, limit").ThrowAsJavaScriptException();
+        return env.Null();
+    }
+
+    std::string tm = std::to_string(info[0].As<Napi::Number>().Int64Value());
+    std::string limit = std::to_string(info[0].As<Napi::Number>().Int32Value());
+
+    const char* argv[] = {"sysOut", tm.c_str(), limit.c_str() };
+    size_t arglen[] = {strlen("sysOut"), tm.size(), limit.size()};
+    auto reply = (redisReply*)redisCommandArgv(_st_srv, 3, argv, arglen);
+    if(reply ==nullptr) {
+        Napi::TypeError::New(env, _st_srv->errstr).ThrowAsJavaScriptException();
+        return env.Null();
+    }
+    if(reply->type == REDIS_REPLY_ERROR) {
+        Napi::TypeError::New(env, reply->str).ThrowAsJavaScriptException();
+        freeReplyObject(reply);
+        return env.Null();
+    }
+    if(reply->type!= REDIS_REPLY_STRING) {
+        char buff[800];
+        sprintf(buff, "error%i %s()", reply->type, "sysOut");
+        Napi::TypeError::New(env, buff).ThrowAsJavaScriptException();
+        freeReplyObject(reply);
+        return env.Null();
+    }
+
+    auto res = Napi::String::New(env, reply->str);
+    freeReplyObject(reply);
+    return res;
+}
+
+Napi::Value SrvApi::OutProt(const Napi::CallbackInfo& info) {
+    return doIOCmd(info, "outProt");    
+}
+
+Napi::Value SrvApi::InProt(const Napi::CallbackInfo& info) {
+    return doIOCmd(info, "inDigital");    
+}
+
 
 NODE_API_MODULE(addon, Init)

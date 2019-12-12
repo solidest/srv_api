@@ -24,6 +24,18 @@ public:
     Napi::Value PauseInfo(const Napi::CallbackInfo&);
     Napi::Value Continue(const Napi::CallbackInfo&);
 
+    Napi::Value doIOCmd(const Napi::CallbackInfo& info, const char* cmd);
+    Napi::Value OutDigital(const Napi::CallbackInfo&);
+    Napi::Value OutAnalog(const Napi::CallbackInfo&);
+    Napi::Value OutData(const Napi::CallbackInfo&);
+    Napi::Value OutProt(const Napi::CallbackInfo&);
+    Napi::Value InDigital(const Napi::CallbackInfo&);
+    Napi::Value InAnalog(const Napi::CallbackInfo&);
+    Napi::Value InData(const Napi::CallbackInfo&);
+    Napi::Value InProt(const Napi::CallbackInfo&);
+    Napi::Value SysOut(const Napi::CallbackInfo&);
+
+
     static Napi::Function GetClass(Napi::Env);
 
 private:
