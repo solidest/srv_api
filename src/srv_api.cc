@@ -39,6 +39,7 @@ SrvApi::SrvApi(const Napi::CallbackInfo& info) : ObjectWrap(info) {
 }
 
 SrvApi::~SrvApi() {
+    std::cout << "~SrvApi()" << std::endl;
     if(_st_srv!=nullptr) {
         Finalize(nullptr);
     }
@@ -46,12 +47,14 @@ SrvApi::~SrvApi() {
 
 
 Napi::Value SrvApi::Close(const Napi::CallbackInfo& info) {
+    std::cout << "Close()" << std::endl;
     redisFree(_st_srv);
     _st_srv = nullptr;
     return info.Env().Null();
 }
 
 void SrvApi::Finalize(Napi::Env env){
+    std::cout << "Finalize()" << std::endl;
     if(_st_srv) {
         redisFree(_st_srv);
         _st_srv = nullptr;        
