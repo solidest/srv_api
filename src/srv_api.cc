@@ -381,8 +381,8 @@ Napi::Value SrvApi::doIOCmd(const Napi::CallbackInfo& info, const char* cmd) {
     }
 
     std::string intf = info[0].As<Napi::String>().Utf8Value();
-    std::string tm = std::to_string(info[0].As<Napi::Number>().Int64Value());
-    std::string limit = std::to_string(info[0].As<Napi::Number>().Int32Value());
+    std::string tm = std::to_string(info[1].As<Napi::Number>().Int64Value());
+    std::string limit = std::to_string(info[2].As<Napi::Number>().Int32Value());
 
     const char* argv[] = {cmd, intf.c_str(), tm.c_str(), limit.c_str() };
     size_t arglen[] = {strlen(cmd), intf.size(), tm.size(), limit.size()};
@@ -448,7 +448,7 @@ Napi::Value SrvApi::SysOut(const Napi::CallbackInfo& info) {
     }
 
     std::string tm = std::to_string(info[0].As<Napi::Number>().Int64Value());
-    std::string limit = std::to_string(info[0].As<Napi::Number>().Int32Value());
+    std::string limit = std::to_string(info[1].As<Napi::Number>().Int32Value());
 
     const char* argv[] = {"sysOut", tm.c_str(), limit.c_str() };
     size_t arglen[] = {strlen("sysOut"), tm.size(), limit.size()};
