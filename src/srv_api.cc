@@ -31,6 +31,7 @@ SrvApi::SrvApi(const Napi::CallbackInfo& info) : ObjectWrap(info) {
         if (_st_srv) {
             sprintf(buff, "Connection server error: %s\n", _st_srv->errstr);
             redisFree(_st_srv);
+            _st_srv = NULL;
         } else {
             sprintf(buff, "Connection server error: can't allocate server context\n");
         }
@@ -39,25 +40,22 @@ SrvApi::SrvApi(const Napi::CallbackInfo& info) : ObjectWrap(info) {
 }
 
 SrvApi::~SrvApi() {
-    std::cout << "~SrvApi()" << std::endl;
-    if(_st_srv!=nullptr) {
-        Finalize(nullptr);
-    }
+    //std::cout << "~SrvApi()" << std::endl;
+    Finalize(nullptr);
 }
 
 
 Napi::Value SrvApi::Close(const Napi::CallbackInfo& info) {
-    std::cout << "Close()" << std::endl;
-    redisFree(_st_srv);
-    _st_srv = nullptr;
+    //std::cout << "Close()" << std::endl;
+    Finalize(nullptr);
     return info.Env().Null();
 }
 
 void SrvApi::Finalize(Napi::Env env){
-    std::cout << "Finalize()" << std::endl;
+    //std::cout << "Finalize()" << std::endl;
     if(_st_srv) {
         redisFree(_st_srv);
-        _st_srv = nullptr;        
+        _st_srv = NULL;
     }
 }
 
